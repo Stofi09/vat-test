@@ -7,7 +7,7 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 
 builder.Services.AddControllers();
-builder.Services.AddTransient<ITaxuallyHttpClient, TaxuallyHttpClient>();
+builder.Services.AddHttpClient<ITaxuallyHttpClient, TaxuallyHttpClient>();
 builder.Services.AddTransient<ITaxuallyQueueClient, TaxuallyQueueClient>();
 builder.Services.AddTransient<IVatRegistrationHandler, UkVatRegistrationHandler>();
 builder.Services.AddTransient<IVatRegistrationHandler, FrVatRegistrationHandler>();
