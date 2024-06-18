@@ -8,21 +8,32 @@ namespace Taxually.TechnicalTest.Services.Handlers
     public class DeVatRegistrationHandler : IVatRegistrationHandler
     {
         private readonly ITaxuallyQueueClient _queueClient;
+        private readonly ILogger<DeVatRegistrationHandler> _logger;
+        private readonly string _queueName;
 
-        public DeVatRegistrationHandler(ITaxuallyQueueClient queueClient)
+        public DeVatRegistrationHandler(ITaxuallyQueueClient queueClient, IConfiguration configuration, ILogger<DeVatRegistrationHandler> logger)
         {
             _queueClient = queueClient;
+            _logger = logger;
+            _queueName = configuration["VatRegistration:DeQueueName"] ?? throw new ArgumentNullException("DeQueueName configuration is missing.");
         }
 
-        //Add try catch
         public async Task HandleAsync(VatRegistrationRequest request)
         {
-            using (var stringwriter = new StringWriter())
+            try
             {
-                var serializer = new XmlSerializer(typeof(VatRegistrationRequest));
-                serializer.Serialize(stringwriter, request);
-                var xml = stringwriter.ToString();
-                await _queueClient.EnqueueAsync("vat-registration-xml", Encoding.UTF8.GetBytes(xml));
+                using (var stringwriter = new StringWriter())
+                {
+                    var serializer = new XmlSerializer(typeof(VatRegistrationRequest));
+                    serializer.Serialize(stringwriter, request);
+                    var xml = stringwriter.ToString();
+                    await _queueClient.EnqueueAsync(_queueName, Encoding.UTF8.GetBytes(xml));
+                }
+             }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, $"Error during DE VAT registration for {request.CompanyName}");
+                throw;
             }
         }
     }
