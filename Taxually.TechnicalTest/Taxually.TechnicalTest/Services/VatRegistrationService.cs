@@ -11,7 +11,7 @@ namespace Taxually.TechnicalTest.Services
 
         public VatRegistrationService(IEnumerable<IVatRegistrationHandler> handlers, ILogger<VatRegistrationService> logger)
         {
-            _handlers = handlers.ToDictionary(h => h.GetType().Name.Replace("VatRegistrationHandler", ""), h => h);
+            _handlers = handlers.ToDictionary(h => h.CountryCode, h => h);
             _logger = logger;
         }
 

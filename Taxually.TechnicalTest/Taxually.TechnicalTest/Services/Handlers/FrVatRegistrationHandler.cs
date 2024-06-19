@@ -9,7 +9,7 @@ namespace Taxually.TechnicalTest.Services.Handlers
         private readonly ITaxuallyQueueClient _queueClient;
         private readonly ILogger<FrVatRegistrationHandler> _logger;
         private readonly string _queueName;
-
+        public string CountryCode => "FR";
         public FrVatRegistrationHandler(ITaxuallyQueueClient queueClient, IConfiguration configuration, ILogger<FrVatRegistrationHandler> logger)
         {
             _queueClient = queueClient;

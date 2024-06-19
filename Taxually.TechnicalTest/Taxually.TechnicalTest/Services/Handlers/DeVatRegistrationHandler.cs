@@ -10,7 +10,7 @@ namespace Taxually.TechnicalTest.Services.Handlers
         private readonly ITaxuallyQueueClient _queueClient;
         private readonly ILogger<DeVatRegistrationHandler> _logger;
         private readonly string _queueName;
-
+        public string CountryCode => "DE";
         public DeVatRegistrationHandler(ITaxuallyQueueClient queueClient, IConfiguration configuration, ILogger<DeVatRegistrationHandler> logger)
         {
             _queueClient = queueClient;

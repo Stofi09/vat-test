@@ -9,7 +9,7 @@ namespace Taxually.TechnicalTest.Services.Handlers
         private readonly ITaxuallyHttpClient _httpClient;
         private readonly ILogger<UkVatRegistrationHandler> _logger;
         private readonly string _apiUrl;
-
+        public string CountryCode => "GB";
         public UkVatRegistrationHandler(ITaxuallyHttpClient httpClient, IConfiguration configuration, ILogger<UkVatRegistrationHandler> logger)
         {
             _httpClient = httpClient;
