@@ -1,11 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Taxually.TechnicalTest.Services;
+﻿using Taxually.TechnicalTest.Services;
 using Moq;
-using Xunit;
 using Taxually.TechnicalTest.Services.Interfaces;
 using Microsoft.Extensions.Logging;
 using Taxually.TechnicalTest.Models;
@@ -46,52 +40,39 @@ namespace Taxually.Test.IntegrationTests
             _vatRegistrationService = new VatRegistrationService(handlers, _mockLogger.Object);
         }
 
-        [Fact]
-        public async Task RegisterVatAsync_ShouldCallUkHandler_ForGbCountry()
+        [Theory]
+        [InlineData("GB", "UkHandler")]
+        [InlineData("FR", "FrHandler")]
+        [InlineData("DE", "DeHandler")]
+        public async Task RegisterVatAsync_ShouldCallCorrectHandler_ForGivenCountry(string country, string expectedHandler)
         {
             // Arrange
-            var request = new VatRegistrationRequest { CompanyName = "TestCompany", CompanyId = "12345", Country = "GB" };
+            var request = new VatRegistrationRequest { CompanyName = "TestCompany", CompanyId = "12345", Country = country };
 
             // Act
             var result = await _vatRegistrationService.RegisterVatAsync(request);
 
             // Assert
             Assert.IsType<OkResult>(result);
-            _mockUkHandler.Verify(h => h.HandleAsync(request), Times.Once);
-            _mockFrHandler.Verify(h => h.HandleAsync(It.IsAny<VatRegistrationRequest>()), Times.Never);
-            _mockDeHandler.Verify(h => h.HandleAsync(It.IsAny<VatRegistrationRequest>()), Times.Never);
-        }
 
-        [Fact]
-        public async Task RegisterVatAsync_ShouldCallFrHandler_ForFrCountry()
-        {
-            // Arrange
-            var request = new VatRegistrationRequest { CompanyName = "TestCompany", CompanyId = "12345", Country = "FR" };
-
-            // Act
-            var result = await _vatRegistrationService.RegisterVatAsync(request);
-
-            // Assert
-            Assert.IsType<OkResult>(result);
-            _mockFrHandler.Verify(h => h.HandleAsync(request), Times.Once);
-            _mockUkHandler.Verify(h => h.HandleAsync(It.IsAny<VatRegistrationRequest>()), Times.Never);
-            _mockDeHandler.Verify(h => h.HandleAsync(It.IsAny<VatRegistrationRequest>()), Times.Never);
-        }
-
-        [Fact]
-        public async Task RegisterVatAsync_ShouldCallDeHandler_ForDeCountry()
-        {
-            // Arrange
-            var request = new VatRegistrationRequest { CompanyName = "TestCompany", CompanyId = "12345", Country = "DE" };
-
-            // Act
-            var result = await _vatRegistrationService.RegisterVatAsync(request);
-
-            // Assert
-            Assert.IsType<OkResult>(result);
-            _mockDeHandler.Verify(h => h.HandleAsync(request), Times.Once);
-            _mockUkHandler.Verify(h => h.HandleAsync(It.IsAny<VatRegistrationRequest>()), Times.Never);
-            _mockFrHandler.Verify(h => h.HandleAsync(It.IsAny<VatRegistrationRequest>()), Times.Never);
+            switch (expectedHandler)
+            {
+                case "UkHandler":
+                    _mockUkHandler.Verify(h => h.HandleAsync(request), Times.Once);
+                    _mockFrHandler.Verify(h => h.HandleAsync(It.IsAny<VatRegistrationRequest>()), Times.Never);
+                    _mockDeHandler.Verify(h => h.HandleAsync(It.IsAny<VatRegistrationRequest>()), Times.Never);
+                    break;
+                case "FrHandler":
+                    _mockFrHandler.Verify(h => h.HandleAsync(request), Times.Once);
+                    _mockUkHandler.Verify(h => h.HandleAsync(It.IsAny<VatRegistrationRequest>()), Times.Never);
+                    _mockDeHandler.Verify(h => h.HandleAsync(It.IsAny<VatRegistrationRequest>()), Times.Never);
+                    break;
+                case "DeHandler":
+                    _mockDeHandler.Verify(h => h.HandleAsync(request), Times.Once);
+                    _mockUkHandler.Verify(h => h.HandleAsync(It.IsAny<VatRegistrationRequest>()), Times.Never);
+                    _mockFrHandler.Verify(h => h.HandleAsync(It.IsAny<VatRegistrationRequest>()), Times.Never);
+                    break;
+            }
         }
 
         [Fact]
